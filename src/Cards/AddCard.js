@@ -1,69 +1,60 @@
 import React, {useState, useEffect} from "react";
-import {useParams, Link, useHistory} from "react-router-dom";
-import {readDeck, createCard} from "../utils/api/index";
-import CardForm from "./CardForm";
+import {useHistory, useParams, Link} from "react-router-dom";
+import {readDeck, readCard, updateCard} from "../utils/api/index";
+//import CardForm from "./CardForm";
 
-function AddCard({card}) {
+function EditCard() {
     const [deck, setDeck] = useState({});
-    const [front, setFront] = useState("");
-    const [back, setBack] = useState("");
-    const [newCard, setNewCard] = useState({
-        front: "",
-        back: "",
-        deckId: "",
-        id: "",
-    });
-    const {deckId} = useParams();
+    const [card, setCard] = useState({});
+    const [cardFront, setCardFront] = useState("");
+    const [cardBack, setCardBack] = useState("");
+    const {deckId, cardId} = useParams();
     const history = useHistory();
 
-    //pulls correct deck in order to add cards
+    //pulls correct deck order to add cards
     useEffect(() => {
-        const deckAbort = new AbortController();
-        
-        async function loadDeck() {
+        const abortController = new AbortController();
+
+        async function loadDeckAndCards() {
             try {
-                const pullDeck = await readDeck(deckId, deckAbort.signal);
-                setDeck(pullDeck);
+                const deckData = await readDeck(deckId, abortController.signal);
+                const cardData = await readCard(cardId, abortController.signal);
+                setDeck(deckData);
+                setCard(cardData);
+                setCardFront(cardData.front);
+                setCardBack(cardData.back);
             }
             catch (error) {
-                console.log("error reading deck list");
+                console.log("error creating deck list");
             }
-            return () => deckAbort.abort();
+            return () => {
+                abortController.abort();
+            }
         }
-        loadDeck();
-    }, [deckId])
+        loadDeckAndCards();
+    }, [cardId, deckId]);
 
+    //when form is saved, card will be added to deck and user can add new cards
     const submitHandler = async (e) => {
-        console.log("submit button handler");
-        //e.preventDefault();
-        //const abortController = new AbortController();
-        //const newCard = {
-            //front,
-           // back,
-           // deckId
-        //}
-        await createCard(deckId, newCard);
-        setNewCard({
-            front: "",
-            back: "",
-            cardId: "",
-            id: ""
-        });
-        console.log("submitted");
-        //history.push(`/decks`);
+        e.preventDefault();
+        const abortController = new AbortController();
+        await updateCard(card, abortController.signal);
+        history.push(`/decks/${deckId}`);
     };
 
     const onChangeFrontHandler = ({target}) => {
-        setFront(target.value);
-        setNewCard({
-            ...newCard,
+        setCardFront(target.value);
+        setCard({
+            ...card,
             front: target.value,
+           // [e.target.name]: e.target.value,
         });
     };
+
     const onChangeBackHandler = ({target}) => {
-        setBack(target.value);
-        setNewCard({
-            ...newCard,
+        setCardBack(target.value);
+        setCard({
+            ...card,
             back: target.value,
         });
     };
@@ -74,24 +65,43 @@ function AddCard({card}) {
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><Link to="/">Home</Link></li>
                     <li className="breadcrumb-item"><Link to={`/decks/${deckId}`}>{deck.name}</Link></li>
-                    <li className="breadcrumb-item active" aria-current="page">Add Card</li>
+                    <li className="breadcrumb-item active" aria-current="page">Edit Card {cardId}</li>
                 </ol>
             </nav>
-            <h1>{`${deck.name}: Add Card`}</h1>
+            <h1>Edit Card</h1>
             <div className="card-info">
-                <CardForm
-                    //handleSubmit={submitHandler}
-                    onChangeFrontHandler={onChangeFrontHandler}
-                    onChangeBackHandler={onChangeBackHandler}
-                    newCard={newCard}
-                    //front={front}
-                    //back={back} 
-                    />
-                <button type="button" className="btn btn-secondary mx-1" onClick={() => history.push(`/decks/${deckId}`)}>Done</button>
-                <button type="submit" className="btn btn-primary" onClick={submitHandler}>Save</button>
+                <div>
+                    <h1>CardForm</h1>
+                    <form onSubmit={submitHandler}>
+                        <div className="form-group">
+                            <label htmlFor="front">Front</label>
+                            <textarea
+                                type="text"
+                                className="form-control"
+                                id="front"
+                                placeholder="Front side of the card"
+                                onChange={onChangeFrontHandler}
+                                value={cardFront}
+                                ></textarea>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="back">Back</label>
+                            <textarea   
+                                type="text"
+                                className="form-control"
+                                id="back"
+                                placeholder="Back side of the card"
+                                onChange={onChangeBackHandler}
+                                value={cardBack}
+                                ></textarea>
+                        </div>
+                    </form>
+                </div>
+                    <button tupe="button" className="btn btn-secondary mx-1" onClick={() => history.push(`/decks/${deckId}`)}>Done</button>
+                    <button type="submit" className="btn btn-primary" onClick={submitHandler}>Save</button>
             </div>
         </div>
     )
 }
 
-export default AddCard;
+export default EditCard;
