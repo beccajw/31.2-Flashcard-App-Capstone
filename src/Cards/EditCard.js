@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useHistory, useParams, Link} from "react-router-dom";
 import {readDeck, readCard, updateCard} from "../utils/api/index";
-import CardForm from "./CardForm";
+//import CardForm from "./CardForm";
 
 function EditCard() {
     const [deck, setDeck] = useState({});
@@ -32,7 +32,7 @@ function EditCard() {
             }
         }
         loadDeckAndCards();
-    }, []);
+    }, [cardId, deckId]);
 
     //when form is saved, card will be added to deck and user can add new cards
     const submitHandler = async (e) => {
