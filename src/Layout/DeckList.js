@@ -38,7 +38,7 @@ function DeckList() {
                     <p className="card-text">{deck.description}</p>
                     <button type="button" className="btn btn-secondary mx-2" onClick={() => history.push(`/decks/${deck.id}`)}>View</button>
                     <button type="button" className="btn btn-primary" onClick={() => history.push(`/decks/${deck.id}/study`)}>Study</button>
-                    <DeckDelete deckId={deck.Id} />
+                    <DeckDelete deckId={deck.id} />
                 </div>
             </div>
         )
