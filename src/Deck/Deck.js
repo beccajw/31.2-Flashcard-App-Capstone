@@ -47,7 +47,7 @@ function Deck() {
                             onClick={() => history.push(`/decks/${deck.id}/cards/${card.id}/edit`)}>
                                 Edit
                         </button>
-                        <CardDelete cardId={card.id} deckId = {deck.id} />
+                        <CardDelete cardId={card.id} deckId={deck.id} />
                     </div>
                 </div>
             )
@@ -75,6 +75,12 @@ function Deck() {
                         className="btn btn-secondary mx-1"
                         onClick={() => history.push(`/decks/${deck.id}/edit`)}>
                             Edit
+                    </button>
+                    <button 
+                        type="button" 
+                        className="btn btn-primary mx-1" 
+                        onClick={() => history.push(`/decks/${deck.id}/study`)}>
+                            Study
                     </button>
                     <button
                         type="button"
